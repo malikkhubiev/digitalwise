@@ -1,6 +1,6 @@
 const { Sequelize } = require("../db");
-const { User, AuthorFollowers} = require("../models");
-const { transformNumber } = require("./common");
+const { User, AuthorFollowers, Book, Summary, Quote} = require("../models");
+const { transformNumber } = require("./utils");
 
 class authorService {
     // Доделать
@@ -11,79 +11,28 @@ class authorService {
             .forEach(key => delete authorCopy[key]);
 
         // followers and followings
-        let followersIds = await AuthorFollowers.findAndCountAll({
-            where: { authorId },
-            attributes: ["FollowerId"]
-        });
-        if (followersIds.rows.length) {
-            followersIds = followersIds.rows.map(id => id.dataValues.FollowerId);
-        } else {
-            followersIds = [];
-        };
-        let followingIds = await AuthorFollowers.findAndCountAll({
-            where: { FollowerId: authorId },
-            attributes: ["authorId"]
-        });
-        if (followingIds.rows.length) {
-            followingIds = followingIds.rows.map(id => id.dataValues.authorId);
-        } else {
-            followingIds = [];
-        };
-        let followers = await User.findAll({
-            where: {
-                id: {
-                    [Sequelize.Op.in]: followersIds
-                }
-            },
-            attributes: ["id", "avatar", "name"]
-        });
-        let ownFollowingIds = await AuthorFollowers.findAndCountAll({
-            where: { FollowerId: ownId },
-            attributes: ["authorId"]
-        });
-        if (ownFollowingIds.rows.length) {
-            ownFollowingIds = ownFollowingIds.rows.map(id => id.dataValues.authorId);
-        } else {
-            ownFollowingIds = [];
-        };
-        followers = followers.map(follower => {
-            const returnValue = { ...follower.dataValues };
-            if (ownFollowingIds.includes(follower.id))
-                returnValue.amIFollowed = true;
-            return returnValue;
-        });
-        let following = await User.findAll({
-            where: {
-                id: {
-                    [Sequelize.Op.in]: followingIds
-                }
-            },
-            attributes: ["id", "avatar", "name"]
-        });
-        following = following.map(followinger => ({
-            ...followinger.dataValues,
-            amIFollowed: true
-        }));
+        addFollowersInfo(ownId, authorId, authorCopy);
 
-        const followersNumber = transformNumber(filteredFollowers.length);
-        const followingNumber = transformNumber(filteredFollowing.length);
-        authorCopy.followers = { list: followers, number: followersNumber || "0" };
-        authorCopy.following = { list: following, number: followingNumber || "0" };
+        // books, summaries, quotes
+        const books = await Book.findAll({
+            where: {
+                authorId
+            }
+        });
+        const summaries = await Summary.findAll({
+            where: {
+                authorId
+            }
+        });
+        const quotes = await Quote.findAll({
+            where: {
+                authorId
+            }
+        });
+        authorCopy["books"] = books;
+        authorCopy["summaries"] = summaries;
+        authorCopy["quotes"] = quotes;
         
-        // isOwn
-        if (ownId === authorId) authorCopy.isOwn = true;
-        else authorCopy.isOwn = false;
-
-        // amIFollowed
-        let amIFollowed = false;
-
-        if (ownId === authorId) amIFollowed = false;
-        else {
-            followersIds.forEach(followerId => {
-                if (followerId === ownId) amIFollowed = true;
-            });
-        };
-        authorCopy.amIFollowed = amIFollowed;
         return authorCopy;
     };
     follow = async (followerId, followingId) => {

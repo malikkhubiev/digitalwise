@@ -33,24 +33,26 @@ class authService {
             id: author.id,
             name: author.name,
             avatar: author.avatar,
-            payload: returnTokenPayload(author)
         };
     };
     signup = async (email, password, name) => {
         if (filter.isProfane(name)) throw new Error("Your name is profane");
         const hashedPassword = bcrypt.hashSync(password, 3);
-        await Author.create({ email, password: hashedPassword, name });
+        await Author.create({ email, name, password: hashedPassword });
     };
     checkingEmail = async (email, process) => {
         const candidate = await Author.findOne({ where: { email } });
         if (candidate && process === "sign up") throw new Error("Author with the same email is already existing");
         if (!candidate && process === "forgot password") throw new Error("There is no such author");
     };
+
+    // For inner using
     saveVerificationCode = async (email, code) => {
         const mayBeExistingCode = await VerificationCode.findOne({ where: { email } });
         if (mayBeExistingCode) return await VerificationCode.update({ code }, { where: { email } });
         await VerificationCode.create({ email, code });
     };
+
     compareCode = async (email, code) => {
         code = Number(code);
         const realCode = await VerificationCode.findOne({ where: { email } });

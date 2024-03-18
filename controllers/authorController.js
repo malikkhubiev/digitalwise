@@ -12,7 +12,7 @@ class authorController {
     getAuthorProfile = async (req, res, next) => {
         let { id: ownId } = req.body;
         let authorId = +req.params.userId.slice(1);
-        if (!authorId) userId = ownId;
+        if (!authorId) authorId = ownId;
         const profile = await getAuthorProfile(ownId, authorId);
         res.json(profile);
     };

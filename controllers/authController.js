@@ -26,22 +26,22 @@ const encryptEmail = (email) => {
 class authController {
   getIsAuth = async (req, res, next) => {
     const { id: userId } = req.body;
-    const { id, name, avatar, isAccountOpened, payload } = await getIsAuth(
+    const { id, name, avatar, payload } = await getIsAuth(
       userId
     );
     const token = generateJwt(payload);
-    res.json({ id, name, avatar, isAccountOpened, token });
+    res.json({ id, name, avatar, token });
   };
   signin = async (req, res, next) => {
     const { email, password } = req.body;
     if (!email) throw new Error("You didn't provide an email");
     if (!password) throw new Error("You didn't provide a password");
-    const { id, name, avatar, isAccountOpened, payload } = await signin(
+    const { id, name, avatar, payload } = await signin(
       email,
       password
     );
     const token = generateJwt(payload);
-    res.json({ id, name, avatar, isAccountOpened, token });
+    res.json({ id, name, avatar, token });
   };
   signup = async (req, res, next) => {
     const errors = validationResult(req);

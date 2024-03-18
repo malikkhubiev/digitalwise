@@ -1,0 +1,1 @@
+export const getUrl = () => window.location.origin || process.env.REACT_APP_API_URL;

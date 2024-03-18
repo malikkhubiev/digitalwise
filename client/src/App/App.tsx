@@ -1,16 +1,10 @@
 import React from 'react'
+import { SignUpPage } from '../pages/nonAuthorized/SignUpPage/SignUpPage'
 
 export function App() {
   return (
     <div>
-      <h1>asd</h1>
-      <Bsd/>
+      <SignUpPage/>
     </div>
   )
-}
-
-function Bsd(){
-    return (
-        <div>bsd</div>
-    )
 }
