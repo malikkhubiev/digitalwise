@@ -15,10 +15,6 @@ class bookService {
     if (offset) query.offset = offset;
     if (limit) query.limit = limit;
 
-    if (offset === 1) {
-      // Выписать достижения и написать для них функции
-    }
-
     const books = await Book.findAndCountAll(query);
     return books;
   };

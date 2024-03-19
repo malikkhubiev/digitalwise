@@ -9,7 +9,7 @@ const transformNumber = (number) => {
     return `${number}`;
 };
 
-const addFollowersInfo = (ownId, authorId, authorCopy) => {
+const addFollowersInfo = async(ownId, authorId, authorCopy, isOwn) => {
     let followersIds = await AuthorFollowers.findAndCountAll({
         where: { authorId },
         attributes: ["FollowerId"]
@@ -70,8 +70,7 @@ const addFollowersInfo = (ownId, authorId, authorCopy) => {
     authorCopy.following = { list: following, number: followingNumber || "0" };
     
     // isOwn
-    if (ownId === authorId) authorCopy.isOwn = true;
-    else authorCopy.isOwn = false;
+    authorCopy.isOwn = isOwn;
 
     // amIFollowed
     let amIFollowed = false;

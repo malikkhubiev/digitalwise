@@ -1,5 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/dist/query/react";
 import { chatType, imageType } from "../../../types/storeTypes";
+import { $authHost } from "../../../http";
+import { createAsyncThunk } from "@reduxjs/toolkit";
 
 // queries
 export const chatsApi = createApi({
@@ -78,3 +80,19 @@ export const useClearOneChat = chatsApi.endpoints.clearOneChat.useMutation;
 export const useDeleteOneChat = chatsApi.endpoints.deleteOneChat.useMutation;
 export const useClearAllChats = chatsApi.endpoints.clearAllChats.useMutation;
 export const useDeleteAllChats = chatsApi.endpoints.deleteAllChats.useMutation;
+
+// thunks
+export const getChatsThunk = createAsyncThunk(
+    'chats/getChats',
+    // @ts-ignore
+    async (authorId?: number | null, { rejectWithValue }) => {
+        try {
+            const response = await $authHost.get<
+                any
+            >(`/author/getOne/:${authorId}`);
+            return response.data;
+        } catch (e) {
+            return rejectWithValue(e.response.data.message);
+        };
+    }
+);

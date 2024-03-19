@@ -36,13 +36,12 @@ const VerificationCode = sequelize.define("verificationCode", {
 const Chat = sequelize.define("chat", {
     id,
     name: { type: DataTypes.STRING, defaultValue: "." },
-    members: stringArr
+    description: { type: DataTypes.STRING, defaultValue: "." },
 });
 
 const ChatMessage = sequelize.define("chat_message", {
     id,
     content: { type: DataTypes.STRING, allowNull: false },
-    invisibleFor: stringArr
 });
 
 const Book = sequelize.define("book", {
@@ -74,17 +73,19 @@ const Review = sequelize.define("review", {
     content: { type: DataTypes.STRING, defaultValue: "." },
 });
 const ReviewLike = sequelize.define("review_like");
+const ChatMember = sequelize.define("chat_member", {
+    role: { type: DataTypes.STRING, defaultValue: "usual" }, // or admin
+});
 
 // Reference data
 const Genre = sequelize.define("genre", { name: { type: DataTypes.STRING, unique: true, allowNull: false } });
 const BookAuthor = sequelize.define("book_author", { name: { type: DataTypes.STRING, defaultValue: "." } });
-const ChatMember = sequelize.define("chat_member", { name: { type: DataTypes.STRING, defaultValue: "." } });
 
 // One-to-one relations
-Author.hasMany(ChatMessage, {
-    foreignKey: "authorId"
+ChatMember.hasMany(ChatMessage, {
+    foreignKey: "chatMemberId"
 });
-ChatMessage.belongsTo(Author);
+ChatMessage.belongsTo(ChatMember);
 
 Chat.hasMany(ChatMessage, {
     foreignKey: "chatId"
@@ -123,6 +124,12 @@ Review.belongsToMany(Author, { through: ReviewLike });
 Author.belongsToMany(Book, {through: Review})
 Book.belongsToMany(Author, {through: Review})
 
+Author.belongsToMany(Chat, {through: ChatMember});
+Chat.belongsToMany(Author, {through: ChatMember});
+
+ChatMember.belongsToMany(Chat, {through: ChatMessage});
+Chat.belongsToMany(ChatMember, {through: ChatMessage});
+
 module.exports = {
     Author,
     VerificationCode,
@@ -139,5 +146,6 @@ module.exports = {
     BookLike,
     SummaryLike,
     QuoteLike,
-    ReviewLike
+    ReviewLike,
+    ChatMember
 }

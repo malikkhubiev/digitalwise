@@ -1,13 +1,9 @@
-const { follow, block, unBlock, getUserProfile, getOwnAndFollowingImages, getPreferences, getImages, setPreferences, unFollow, getImagesByPreferences, sendASubscriptionRequest, getRequests, confirmSubRequest, denySubRequest } = require("../services/authorService");
+const { follow, unFollow, getAuthorProfile } = require("../services/authorService");
 
 class authorController {
-    // Доделать
     getAuthorsProfiles = async (req, res, next) => {
-        let { id: ownId } = req.body;
-        let authorId = +req.params.userId.slice(1);
-        if (!authorId) userId = ownId;
-        const profile = await getAuthorProfile(ownId, authorId);
-        res.json(profile);
+        const profiles = await getAuthorsProfiles(req.params);
+        res.json(profiles);
     };
     getAuthorProfile = async (req, res, next) => {
         let { id: ownId } = req.body;
